@@ -1,4 +1,7 @@
 #include "player.h"
+/*
+ * Amy's comment!
+ */
 
 /*
  * Constructor for the player; initialize everything here. The side your AI is
