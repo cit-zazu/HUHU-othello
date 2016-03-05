@@ -1,4 +1,7 @@
 #include "board.h"
+#include <iostream>
+
+using namespace std;
 
 /*
  * Make a standard 8x8 othello board and initialize it to the standard setup.
@@ -65,6 +68,23 @@ bool Board::hasMoves(Side side) {
         }
     }
     return false;
+}
+
+vector<Move*> Board::validMoves(Side side) {
+    vector<Move*> validmoves;
+    
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            Move move(i, j);
+            if (checkMove(&move, side)) {
+                cerr <<"1\n";
+                validmoves.push_back(new Move(i, j));
+                cerr <<"2\n";
+            }
+        }
+    }
+    cerr << "[Insider validMoves]\n";
+    return validmoves;
 }
 
 /*

@@ -15,12 +15,15 @@
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
+    
+    this->side = side;
 
     /* 
      * TODO: Do any initialization you need to do here (setting up the board,
      * precalculating things, etc.) However, remember that you will only have
      * 30 seconds.
      */
+     cerr << "[Inside Player Default Constructor]\n";
 }
 
 /*
@@ -46,5 +49,20 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * TODO: Implement how moves your AI should play here. You should first
      * process the opponent's opponents move before calculating your own move
      */ 
+    cerr << "[Inside Player::doMove]\n";
+    int num_moves;
+    
+    board.doMove(opponentsMove, side);
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            
+        }
+    }
+    
+//    vector<Move> validmoves = board.validMoves(side);
+//    num_moves = validmoves.size();
+//    cerr << "number of valid moves" << num_moves << "\n";
+    
+    
     return NULL;
 }
