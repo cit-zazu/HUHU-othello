@@ -9,7 +9,8 @@ using namespace std;
 class Player {
 private:
     Board board;
-    Side side;
+    Side my_side;
+    Side opponent_side;
 
 public:
     Player(Side side);

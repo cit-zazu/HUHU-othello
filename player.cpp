@@ -1,4 +1,5 @@
 #include "player.h"
+
 /*
  * Leon's comment
  */ 
@@ -16,14 +17,20 @@ Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
     
-    this->side = side;
+    my_side = side;
+    if (side == WHITE) {
+        opponent_side = BLACK;
+    }
+    else {
+        opponent_side = WHITE;
+    }
 
     /* 
      * TODO: Do any initialization you need to do here (setting up the board,
      * precalculating things, etc.) However, remember that you will only have
      * 30 seconds.
      */
-     cerr << "[Inside Player Default Constructor]\n";
+    cerr << "[Inside Player Default Constructor]\n";
 }
 
 /*
@@ -50,19 +57,20 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * process the opponent's opponents move before calculating your own move
      */ 
     cerr << "[Inside Player::doMove]\n";
-    int num_moves;
     
-    board.doMove(opponentsMove, side);
+    board.doMove(opponentsMove, opponent_side);
+    
+    
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            
+            Move move(i, j);
+            if (board.checkMove(&move, my_side)) {
+                Move *newmove = new Move(i, j);
+                board.doMove(newmove, my_side);
+                return newmove;
+            }
         }
     }
-    
-//    vector<Move> validmoves = board.validMoves(side);
-//    num_moves = validmoves.size();
-//    cerr << "number of valid moves" << num_moves << "\n";
-    
     
     return NULL;
 }
