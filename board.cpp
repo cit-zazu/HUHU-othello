@@ -77,15 +77,14 @@ vector<Move*> Board::validMoves(Side side) {
         for (int j = 0; j < 8; j++) {
             Move move(i, j);
             if (checkMove(&move, side)) {
-                cerr <<"1\n";
                 validmoves.push_back(new Move(i, j));
-                cerr <<"2\n";
             }
         }
     }
     cerr << "[Insider validMoves]\n";
     return validmoves;
 }
+
 
 /*
  * Returns true if a move is legal for the given side; false otherwise.

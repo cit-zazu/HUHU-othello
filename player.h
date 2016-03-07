@@ -18,6 +18,8 @@ public:
     
     
     Move *doMove(Move *opponentsMove, int msLeft);
+    vector<int> simple_heuristic(vector<Move*> validmoves);
+    int max_index(vector<int> vec);
 
     // Flag to tell if the player is running within the test_minimax context
     bool testingMinimax;

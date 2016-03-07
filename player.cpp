@@ -1,4 +1,5 @@
 #include "player.h"
+#include <unistd.h>
 
 /*
  * Leon's comment
@@ -37,6 +38,35 @@ Player::Player(Side side) {
  * Destructor for the player.
  */
 Player::~Player() {
+    
+    
+}
+
+int Player::max_index(vector<int> vec) {
+    int max_index = 0;
+    for (unsigned int i = 1; i < vec.size(); i++) {
+        if (vec[i] > vec[max_index]) {
+            max_index = i;
+        }
+    }
+    return max_index;
+}
+
+/*
+ * Gives the heuristic values corresponding to a vector of
+ * valid moves.
+ */
+vector<int> Player::simple_heuristic(vector<Move*> validmoves) {
+    vector<int> heuristic_values;
+    
+    for (unsigned int i = 0; i < validmoves.size(); i++) {
+        Board *temp_board = board.copy();
+        temp_board->doMove(validmoves[i], my_side);
+        heuristic_values.push_back(board.count(my_side) - board.count(opponent_side));
+        delete temp_board;
+    }
+    
+    return heuristic_values;
 }
 
 /*
@@ -57,20 +87,41 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * process the opponent's opponents move before calculating your own move
      */ 
     cerr << "[Inside Player::doMove]\n";
+    vector<Move*> validmoves;
     
     board.doMove(opponentsMove, opponent_side);
     
-    
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            Move move(i, j);
-            if (board.checkMove(&move, my_side)) {
-                Move *newmove = new Move(i, j);
-                board.doMove(newmove, my_side);
-                return newmove;
-            }
+    validmoves = board.validMoves(my_side);
+        
+    // Does a random move using validmoves
+//    if (!validmoves.empty()) {
+//        board.doMove(validmoves[0], my_side);
+//        Move *newmove = new Move(validmoves[0]->getX(), validmoves[0]->getY());
+//        
+//        // Deallocates validmoves
+//        for(unsigned int i = 0; i < validmoves.size(); i++) {
+//            delete validmoves[i];
+//        }
+//        return newmove;
+//    }
+      
+ 
+        
+        // Does a move with the highest heuristic value
+    if (!validmoves.empty()) {
+        vector<int> heuristic_values = simple_heuristic(validmoves);
+        int index = max_index(heuristic_values);
+        
+        Move *newmove = new Move(validmoves[index]->getX(), validmoves[index]->getY());
+        
+        for (unsigned int i = 0; i < validmoves.size(); i++) {
+            delete validmoves[i];
         }
+        board.doMove(newmove, my_side);
+        return newmove;
     }
     
+    //usleep(10 * 1000000);
+
     return NULL;
 }
