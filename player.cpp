@@ -1,5 +1,6 @@
 #include "player.h"
 #include <unistd.h>
+#include <stdio.h>
 
 /*
  * Leon's comment
@@ -58,11 +59,16 @@ int Player::max_index(vector<int> vec) {
  */
 vector<int> Player::simple_heuristic(vector<Move*> validmoves) {
     vector<int> heuristic_values;
+    int value;
     
     for (unsigned int i = 0; i < validmoves.size(); i++) {
         Board *temp_board = board.copy();
         temp_board->doMove(validmoves[i], my_side);
-        heuristic_values.push_back(board.count(my_side) - board.count(opponent_side));
+        value = temp_board->count(my_side) - temp_board->count(opponent_side);
+        if (validmoves[i]->is_corner()) {
+            value += 10;
+        }
+        heuristic_values.push_back(value);
         delete temp_board;
     }
     
@@ -104,8 +110,6 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 //        }
 //        return newmove;
 //    }
-      
- 
         
         // Does a move with the highest heuristic value
     if (!validmoves.empty()) {
@@ -120,8 +124,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         board.doMove(newmove, my_side);
         return newmove;
     }
-    
-    //usleep(10 * 1000000);
+
 
     return NULL;
 }
