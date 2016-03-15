@@ -18,8 +18,10 @@ public:
     
     
     Move *doMove(Move *opponentsMove, int msLeft);
-    vector<int> simple_heuristic(vector<Move*> validmoves);
+    vector<int> simple_heuristic(Board* current_board, vector<Move*> validmoves, Side what_side);
+    vector<int> minmax(vector<Move*> validmoves);
     int max_index(vector<int> vec);
+    void set_board(Board board);
 
     // Flag to tell if the player is running within the test_minimax context
     bool testingMinimax;

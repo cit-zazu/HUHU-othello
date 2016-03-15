@@ -57,22 +57,102 @@ int Player::max_index(vector<int> vec) {
  * Gives the heuristic values corresponding to a vector of
  * valid moves.
  */
-vector<int> Player::simple_heuristic(vector<Move*> validmoves) {
+vector<int> Player::simple_heuristic(Board* current_board, vector<Move*> validmoves, Side what_side) {
+    cerr << "[Inside Player simple_heuristic]\n";
+    
     vector<int> heuristic_values;
     int value;
+    int weight;
+    if ((my_side == BLACK && what_side == WHITE) || (my_side == WHITE && what_side == BLACK)) {
+        weight = - 10;
+    }
     
     for (unsigned int i = 0; i < validmoves.size(); i++) {
-        Board *temp_board = board.copy();
-        temp_board->doMove(validmoves[i], my_side);
+        Board *temp_board = current_board->copy();
+        temp_board->doMove(validmoves[i], what_side);
         value = temp_board->count(my_side) - temp_board->count(opponent_side);
-        if (validmoves[i]->is_corner()) {
-            value += 10;
+        Move * temp = new Move(validmoves[i]->getX(), validmoves[i]->getY());
+        if (temp->is_corner()) {
+            value = value + weight;
         }
+
+        // Case when corner = (x + 1, y)
+        temp->setX(temp->getX() + 1);
+        if (temp->is_corner()) {
+            value = value - weight;
+        }
+        // Case when corner = (x + 1, y - 1)
+        temp->setY(temp->getY() - 1);
+        if (temp->is_corner()) {
+            value = value - weight;
+        }
+        // Case when corner = (x + 1, y + 1)
+        temp->setY(temp->getY() + 2);
+        if (temp->is_corner()) {
+            value = value - weight;
+        }
+        // Case when corner = (x, y + 1)
+        temp->setX(temp->getX() - 1);
+        if (temp->is_corner()) {
+            value = value - weight;
+        }
+        // Case when corner = (x - 1, y + 1)
+        temp->setX(temp->getX() - 1);
+        if (temp->is_corner()) {
+            value = value - weight;
+        }
+        // Case when corner = (x - 1, y)
+        temp->setY(temp->getY() - 1);
+        if (temp->is_corner()) {
+            value = value - weight;
+        }
+        // Case when corner = (x - 1, y - 1)
+        temp->setY(temp->getY() - 1);
+        if (temp->is_corner()) {
+            value = value - weight;
+        }
+        // Case when corner = (x, y - 1)
+        temp->setX(temp->getX() + 1);
+        if (temp->is_corner()) {
+            value = value - weight;
+        }
+         
         heuristic_values.push_back(value);
+        delete temp;
         delete temp_board;
     }
     
     return heuristic_values;
+}
+
+
+vector<int> Player::minmax(vector<Move*> validmoves) {
+    cerr << "[Inside Player minmax]\n";
+
+    vector<int> heuristic_values = simple_heuristic(&board, validmoves, my_side);
+    
+    for (unsigned int i = 0; i < validmoves.size(); i++) {
+        Board *temp_board = board.copy();
+        temp_board->doMove(validmoves[i], my_side);
+        vector<Move*> temp_validmoves =  temp_board->validMoves(opponent_side);
+        if (!temp_validmoves.empty()) {
+            vector<int> temp_heuristic = simple_heuristic(temp_board, temp_validmoves, opponent_side);
+            int max_i = max_index(temp_heuristic);
+            heuristic_values[i] = temp_heuristic[max_i];
+        }
+        
+        // Clean up memory
+        for (unsigned int j = 0; j < temp_validmoves.size(); j++) {
+            delete temp_validmoves[j];
+        }
+        delete temp_board;
+    }
+
+    return heuristic_values;
+}
+
+void Player::set_board(Board new_board) {
+    board = new_board;
 }
 
 /*
@@ -111,10 +191,31 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 //        return newmove;
 //    }
         
-        // Does a move with the highest heuristic value
+    // Does a move with the highest heuristic value
+//    if (!validmoves.empty()) {
+//        vector<int> heuristic_values = simple_heuristic(&board, validmoves, my_side);
+//        int index = max_index(heuristic_values);
+//        
+//        Move *newmove = new Move(validmoves[index]->getX(), validmoves[index]->getY());
+//        
+//        for (unsigned int i = 0; i < validmoves.size(); i++) {
+//            delete validmoves[i];
+//        }
+//        board.doMove(newmove, my_side);
+//        return newmove;
+//    }
+
+
+    // Does a move with the highest heuristic value using minmax tree
     if (!validmoves.empty()) {
-        vector<int> heuristic_values = simple_heuristic(validmoves);
-        int index = max_index(heuristic_values);
+        int index;
+        if (validmoves.size() == 1) {
+            index = 0;
+        }
+        else {
+            vector<int> heuristic_values = minmax(validmoves);
+            index = max_index(heuristic_values);
+        }
         
         Move *newmove = new Move(validmoves[index]->getX(), validmoves[index]->getY());
         
@@ -124,7 +225,6 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         board.doMove(newmove, my_side);
         return newmove;
     }
-
 
     return NULL;
 }
